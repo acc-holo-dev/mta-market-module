@@ -1,11 +1,11 @@
-# MTA:SA Module SDK
+﻿# MTA:SA Module SDK
 
-[![CI](https://github.com/acc-holo-dev/mta-sdk-module/actions/workflows/ci.yml/badge.svg)](https://github.com/acc-holo-dev/mta-sdk-module/actions/workflows/ci.yml)
+[![CI](https://github.com/acc-holo-dev/mta-guard-module/actions/workflows/ci.yml/badge.svg)](https://github.com/acc-holo-dev/mta-guard-module/actions/workflows/ci.yml)
 
 A C++20 SDK for writing native MTA:SA server modules: register typed Lua
 functions with one macro, let the binder validate arguments and translate
 errors, and get async work, timers, callbacks and userdata objects with
-resource-safe lifetimes — without touching the raw Lua stack.
+resource-safe lifetimes вЂ” without touching the raw Lua stack.
 
 ## What it is
 
@@ -31,27 +31,27 @@ local ok, err = pcall(greet, 42)
 
 ## What it gives you
 
-- **Typed registration macros** — `MTA_FUNCTION`, `MTA_LUA_FUNCTION` (body
+- **Typed registration macros** вЂ” `MTA_FUNCTION`, `MTA_LUA_FUNCTION` (body
   style), `MTA_LUA_FUNC` (lambda style); the binder derives argument
   validation, result conversion and error messages from the C++ signature.
-- **Clear errors** — every mismatch becomes a Lua error in the documented
+- **Clear errors** вЂ” every mismatch becomes a Lua error in the documented
   `bad argument #N to 'name' (expected X, got Y)` format; no C++ knowledge
   required to diagnose.
-- **Value model with an async rule** — owned snapshots
+- **Value model with an async rule** вЂ” owned snapshots
   (`mta::lua::Argument/Table/Arguments`) are the only values that cross the
   async boundary; the borrowed view (`mta::state`, `MTA_STATE`) reads and
   pushes inside the synchronous call.
-- **Async runtime** — `mta::async::run` worker tasks with cancellation and
+- **Async runtime** вЂ” `mta::async::run` worker tasks with cancellation and
   completion delivery on the main thread; `mta::timer::after` /
   `mta::timer::every` timers; worker count and queue limit from the config.
-- **Native objects** — `MTA_OBJECT` + `MTA_METHOD` register userdata types
+- **Native objects** вЂ” `MTA_OBJECT` + `MTA_METHOD` register userdata types
   with stable metatable identities and compiler-independent metadata.
-- **Resource-safe lifetimes** — every callback, task and timer is owned by
+- **Resource-safe lifetimes** вЂ” every callback, task and timer is owned by
   `(resource, generation)`; a restarted resource can never observe objects
   from its previous VM.
-- **Logging with context** — `mta::log` prefixes messages with the module
+- **Logging with context** вЂ” `mta::log` prefixes messages with the module
   name and the current call site automatically.
-- **Tooling** — the `mta` CLI (init, new, build, test, docs, doctor,
+- **Tooling** вЂ” the `mta` CLI (init, new, build, test, docs, doctor,
   package, server), a generated-function docs reference (`mta docs`), an
   embedded Lua test harness, and a pinned real-server integration runner.
 
@@ -80,7 +80,7 @@ module: loaded my_mod (module 2.1, sdk 1.0.0, abi 1; MTA 1.6.0-9.21788.0)
 ## Create your first function
 
 `mta new function player_bonus` generates a compile-ready skeleton in
-`source/functions/` — source discovery picks it up on the next build, no
+`source/functions/` вЂ” source discovery picks it up on the next build, no
 CMake edits needed. Body style gives you direct control of the Lua stack
 through the typed reader:
 
@@ -109,8 +109,8 @@ player_bonus(10)     -- error: bad argument #2 to 'player_bonus'
 
 Optional parameters use `std::optional<T>`, variadic tails use
 `mta::lua::args` with `rest_args`, and `mta::Resource` parameters are
-validated live against the running server. The full behavior — including
-return values, multiple results and tables — is specified in
+validated live against the running server. The full behavior вЂ” including
+return values, multiple results and tables вЂ” is specified in
 [other/documents/example.md](other/documents/example.md).
 
 ## Tables / callbacks / async / timers
@@ -222,15 +222,15 @@ No developer-installed server is used; the build identity is recorded in
 
 ## Documentation
 
-- [example.md](other/documents/example.md) — the practical manual: every
+- [example.md](other/documents/example.md) вЂ” the practical manual: every
   feature with C++ + Lua + expected result.
-- [api.md](other/documents/api.md) — the full API reference (facade,
+- [api.md](other/documents/api.md) вЂ” the full API reference (facade,
   binder, runtime, objects, config, CLI).
-- [architecture.md](other/documents/architecture.md) — layers, value
+- [architecture.md](other/documents/architecture.md) вЂ” layers, value
   model, lifetimes, build system, test pyramid.
-- [TUTORIAL.md](other/documents/TUTORIAL.md) — a guided first module.
-- [GUIDES.md](other/documents/GUIDES.md) — task-oriented recipes.
-- [migration-v1-to-v2.md](other/documents/migration-v1-to-v2.md) — upgrading
+- [TUTORIAL.md](other/documents/TUTORIAL.md) вЂ” a guided first module.
+- [GUIDES.md](other/documents/GUIDES.md) вЂ” task-oriented recipes.
+- [migration-v1-to-v2.md](other/documents/migration-v1-to-v2.md) вЂ” upgrading
   a V1-style module.
 
 ## Supported platforms
@@ -248,13 +248,13 @@ extension and verifies that identity in CI.
 
 ## Release status
 
-`v2.1.0` — refinement release: canonical repository layout
+`v2.1.0` вЂ” refinement release: canonical repository layout
 (`source/`, `config/`, `other/`), the full `mta` CLI, doctor diagnostics,
 an embedded Lua suite (216 checks) plus benchmarks, and a pinned real-server
 integration suite (20 scenarios) running in CI on every push and in the
 release pipeline before packaging. Releases attach exactly
-`<module>.dll` / `<module>.so` — no source archives, no debug artifacts.
+`<module>.dll` / `<module>.so` вЂ” no source archives, no debug artifacts.
 
 ## License
 
-MIT — Copyright (c) 2026 HoloDev
+MIT вЂ” Copyright (c) 2026 HoloDev
