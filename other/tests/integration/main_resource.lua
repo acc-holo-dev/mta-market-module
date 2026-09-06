@@ -102,6 +102,36 @@ if generation == 1 then
         and select(1, pcall(counter_create)) == false
         and select(1, pcall(sample_task_run, 100, 1, 2, "not a function")) == false)
 
+    -- STAGE 0 DRM SPIKE on the real server: encrypted Lua SOURCE payload
+    -- (byte-complement "cipher", hex-encoded) decrypted and executed by the
+    -- native module INSIDE THIS resource VM.
+    local function encrypt_real(source)
+        local bytes = {}
+        for i = 1, #source do
+            bytes[#bytes + 1] = string.format("%02x", 255 - string.byte(source, i))
+        end
+        return table.concat(bytes)
+    end
+
+    local drm_ok, drm_err = spike_drm_load(
+        encrypt_real('spike_drm_source_real = "source ran on real server"'))
+    check("drm source payload",
+        drm_ok == true and spike_drm_source_real == "source ran on real server")
+
+    -- STAGE 0 DRM SPIKE: encrypted BYTECODE payload, produced offline by
+    -- the build pipeline (spike_luac + MTA-format dumper). The runtime
+    -- cannot dump bytecode (WITH_STRING_DUMP off) but loads it fine.
+    local drm_bytecode_hex =
+        "e4b38a9eaefffefbfbfbf7ffbaffffffbfbbc5a3b996939aa3bb9a899a93908f9a8da3af8d90959a" ..
+        "9c8ba3acbbb4a3928b9ed2988a9e8d9bd292909b8a939aa39d8a96939ba38f8d908b9a9c8b9a9bcdd1" ..
+        "938a9efffffffffffffffffffffffdfdfcfffffffebffffff8ffffffe1ff7ffffdfffffffbe9ffffff" ..
+        "8c8f96949aa09b8d92a08d9a9e93a0929e8d949a8dfffbe3ffffff9d868b9a9c909b9adf8d9e91df90" ..
+        "91df8d9a9e93df8c9a8d899a8dfffffffffffcfffffffefffffffefffffffeffffffffffffffffffffff"
+    local bc_ok, bc_err = spike_drm_load(drm_bytecode_hex)
+    check("drm bytecode payload",
+        bc_ok == true and spike_drm_real_marker == "bytecode ran on real server")
+
+
     local counter = counter_create(7)
     check("userdata", counter ~= nil and counter:get() == 7 and counter:add(3) == 10)
     check("userdata validation", select(1, pcall(counter.set, counter, {})) == false)
