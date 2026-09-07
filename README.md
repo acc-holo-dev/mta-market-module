@@ -1,8 +1,34 @@
-﻿# MTA:SA Module SDK
+# MTA Market — Client DRM Module
 
-[![CI](https://github.com/acc-holo-dev/mta-guard-module/actions/workflows/ci.yml/badge.svg)](https://github.com/acc-holo-dev/mta-guard-module/actions/workflows/ci.yml)
+[![CI](https://github.com/acc-holo-dev/mta-market-module/actions/workflows/ci.yml/badge.svg)](https://github.com/acc-holo-dev/mta-market-module/actions/workflows/ci.yml)
 
-A C++20 SDK for writing native MTA:SA server modules: register typed Lua
+**MTA Guard Module** — DRM client-side integration for MTA Market marketplace.
+
+This module provides license verification, artifact signature checking, and secure installation management for resources purchased from MTA Market.
+
+## 🔗 Project Structure
+
+- **[mta-market-site](https://github.com/acc-holo-dev/mta-market-site)** — Backend API + Frontend (Node.js + Next.js)
+- **[mta-market-document](https://github.com/acc-holo-dev/mta-market-document)** — Documentation & Audit
+- **[mta-market-module](https://github.com/acc-holo-dev/mta-market-module)** — Client DRM module (this repo)
+
+---
+
+## What it does
+
+The MTA Guard Module is a C++20 native module that:
+
+1. **License Verification** — Validates cryptographic signatures from MTA Market backend
+2. **Installation Identity** — Generates stable server identifiers for license binding
+3. **Lease Management** — Handles time-limited license leases with renewal
+4. **Artifact Verification** — Checks SHA-256 hashes and publisher signatures
+5. **Secure Storage** — Protects keypairs and license data from tampering
+
+## Original README (MTA:SA Module SDK)
+
+---
+
+# MTA:SA Module SDK
 functions with one macro, let the binder validate arguments and translate
 errors, and get async work, timers, callbacks and userdata objects with
 resource-safe lifetimes вЂ” without touching the raw Lua stack.
