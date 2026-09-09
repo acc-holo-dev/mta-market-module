@@ -23,3 +23,18 @@ mta test
 Артефакт: `.dll` / `.so` → `modules/` сервера, запись в `mtaserver.conf`.
 
 Имя модуля задаётся в `config/module.toml` (сейчас `base` / 2.1.0).
+
+## DRM client subsystem (PLAN Block 6 / H)
+
+The module ships a real DRM client subsystem (`source/drm/`) that talks the
+frozen DRM Protocol v2 of `mta-market-site`: installation identity with an
+Ed25519 keypair stored in the secure key store, challenge verification,
+signed-lease activation/verification/renewal, heartbeats, and lease-gated
+DEK release for AES-256-GCM encrypted resources. See
+`docs/H-001-inventory.md` for the full inventory and cross-platform matrix.
+
+Build and run the standalone DRM unit tests (no MTA server required):
+
+```sh
+make -f source/drm/Makefile test
+```
