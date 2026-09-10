@@ -175,6 +175,41 @@ int main()
         }
     }
 
+    // ---- challenge signing interop (PLAN-004 F-002, audit P0-1) ----
+    // The server issues challenge = base64(32 raw bytes) and verifies the
+    // Ed25519 signature over the DECODED bytes. Lock the contract: the
+    // signed message must be the decoded 32 bytes, not the ASCII base64
+    // text (44 chars), or the live verify fails with 401.
+    {
+        const std::string challenge_b64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; // 32 zero bytes
+        const auto challenge_bytes = mta::drm::base64_decode(challenge_b64);
+        expect(challenge_bytes.size() == 32, "challenge decodes to 32 raw bytes");
+        expect(challenge_bytes.size() != challenge_b64.size(), "challenge is not signed as ascii");
+        const auto pair = mta::drm::ed25519_generate();
+        expect(pair.has_value(), "challenge test keypair");
+        if (pair && challenge_bytes.size() == 32)
+        {
+            const auto signature = mta::drm::ed25519_sign(pair->private_key, challenge_bytes);
+            expect(signature.has_value(), "challenge signature created");
+            if (signature)
+            {
+                expect(mta::drm::ed25519_verify(pair->public_key, challenge_bytes, *signature),
+                       "challenge signature verifies over decoded bytes");
+                // The signature over the ASCII base64 text must NOT verify as
+                // a raw-bytes signature (guards against a regression to the
+                // pre-PLAN-004 behavior).
+                const std::vector<std::uint8_t> ascii_bytes{challenge_b64.begin(),
+                                                            challenge_b64.end()};
+                const auto ascii_signature =
+                    mta::drm::ed25519_sign(pair->private_key, ascii_bytes);
+                expect(ascii_signature.has_value() &&
+                           !mta::drm::ed25519_verify(pair->public_key, challenge_bytes,
+                                                     *ascii_signature),
+                       "ascii-text signature rejected for raw-bytes verify");
+            }
+        }
+    }
+
     if (g_failures == 0)
     {
         std::printf("ALL TESTS PASSED\n");

@@ -194,8 +194,20 @@ std::optional<std::string> LicenseClient::registerInstallation(const std::string
 bool LicenseClient::verifyInstallation(const std::string &installation_id,
                                        const std::string &challenge, HttpClientError &error)
 {
-    const auto signature = ed25519_sign(
-        private_key_, std::vector<std::uint8_t>(challenge.begin(), challenge.end()));
+    // PLAN-004 F-002 (audit P0-1): the challenge is a base64 string encoding
+    // 32 raw bytes; the server verifies the Ed25519 signature over the
+    // DECODED challenge bytes (lib/drm/crypto.ts verifyChallengeResponse
+    // verifies Buffer.from(challenge, "base64")), and the protocol spec says
+    // "signature over the raw challenge bytes". Signing the ASCII base64
+    // text instead made every live verify fail with 401
+    // DRM_INVALID_CHALLENGE_RESPONSE while both local test suites stayed
+    // green. Decode first, then sign the raw bytes.
+    std::vector<std::uint8_t> challenge_bytes;
+    if (!base64_decode(challenge, challenge_bytes) || challenge_bytes.empty())
+    {
+        return false;
+    }
+    const auto signature = ed25519_sign(private_key_, challenge_bytes);
     if (!signature)
         return false;
 
